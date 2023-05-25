@@ -1,19 +1,43 @@
 #include <stdio.h>
 #include <iostream>
+#include <thrust/device_vector.h>
 #include "test.h"
+#include "io.h"
 
-__global__ void print_kernel() {
-	printf(
-			"Hello from block %d, thread %d\n",
-			blockIdx.x, threadIdx.x);
+
+__host__ uint8_t TextureFeaturesExtraction(const thrust::device_vector<uint8_t>& image, int width, int height, int x, int y) {
+	uint8_t centerPixel = image[y * width + x];
+
+	uint8_t lbpCode = 0;
+	lbpCode |= (image[(y - 1) * width + (x - 1)] >= centerPixel) << 7;
+	lbpCode |= (image[(y - 1) * width + x] >= centerPixel) << 6;
+	lbpCode |= (image[(y - 1) * width + (x + 1)] >= centerPixel) << 5;
+	lbpCode |= (image[y * width + (x + 1)] >= centerPixel) << 4;
+	lbpCode |= (image[(y + 1) * width + (x + 1)] >= centerPixel) << 3;
+	lbpCode |= (image[(y + 1) * width + x] >= centerPixel) << 2;
+	lbpCode |= (image[(y + 1) * width + (x - 1)] >= centerPixel) << 1;
+	lbpCode |= (image[y * width + (x - 1)] >= centerPixel);
+
+	return lbpCode;
 }
 
 int main() {
 
-	hello();
+	unsigned int width, height;
+	std::vector<unsigned char> image;
 
-	print_kernel<<<3, 3>>>();
-	cudaDeviceSynchronize();
+	std::string filename = "/home/maxime.madrau/afs/cuda/Project/1.png";
+
+	if (loadImage(filename, image, width, height)) {
+		// L'image a été chargée avec succès
+		// Faites ce que vous voulez avec l'image ici
+
+		std::cout << "Largeur : " << width << std::endl;
+		std::cout << "Hauteur : " << height << std::endl;
+		std::cout << "Nombre de pixels : " << image.size() << std::endl;
+	} else {
+		std::cout << "Fail" << std::endl;
+	}
 
 	return 0;
 }
