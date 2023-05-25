@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <thrust/device_vector.h>
+#include "src/ColorFeaturesExtraction.hh"
 #include "test.h"
 #include "io.h"
 
@@ -26,7 +27,8 @@ int main() {
 	unsigned int width, height;
 	std::vector<unsigned char> image;
 
-	std::string filename = "/home/maxime.madrau/afs/cuda/Project/1.png";
+    //This path needs to be edited for each user
+	std::string filename = "/home/nicolas.muller/afs/cuda/TP_map.png";
 
 	if (loadImage(filename, image, width, height)) {
 		// L'image a été chargée avec succès
@@ -38,6 +40,11 @@ int main() {
 	} else {
 		std::cout << "Fail" << std::endl;
 	}
+    int size = width * height;
+    std::vector<unsigned int> redGreen = ColorFeaturesExtraction(image, width, height);
+    std::cout << "redGreen size : " << redGreen.size() << std::endl;
+    std::cout << "size : " << size << std::endl;
+    std::cout << "redGreen size must be equal to size : " << (redGreen.size() == size) << std::endl;
 
-	return 0;
+    return 0;
 }
