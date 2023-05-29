@@ -17,7 +17,7 @@ add_library(libpng STATIC IMPORTED src/ColorFeaturesExtraction.cpp src/ColorFeat
 set_target_properties(libpng PROPERTIES IMPORTED_LOCATION "${COMMAND_LIGNE_1}/libpng16.so.16.37.0")
 
 
-add_executable(Project main.cu io.cpp io.h src/ColorFeaturesExtraction.cpp src/ColorFeaturesExtraction.hh src/ColorSimilarityMeasures.hh src/TextureSimilarityMeasures.cpp src/TextureSimilarityMeasures.hh)
+add_executable(Project main.cu io.cpp io.h src/ColorFeaturesExtraction.cpp src/ColorFeaturesExtraction.hh src/ColorSimilarityMeasures.hh src/ColorSimilarityMeasures.cpp src/TextureSimilarityMeasures.cpp src/TextureSimilarityMeasures.hh src/TextureFeaturesExtraction.cpp src/TextureFeaturesExtraction.hh src/Classification.cpp src/Classification.hh)
 
 target_link_libraries(Project libpng)
 
