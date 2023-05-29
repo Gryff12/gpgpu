@@ -11,7 +11,7 @@ std::vector<unsigned int> ColorFeaturesExtraction(std::vector<unsigned char> ima
 
     for (unsigned int y = 0; y < height; y++) {
         for (unsigned int x = 0; x < width; x++) {
-            unsigned int index = (y * width + x) * 4; // Chaque pixel a 4 composantes (RGBA)
+            unsigned int index = (y * width + x) * 3; // Chaque pixel a 4 composantes (RGBA)
             unsigned char red = image[index];
             unsigned char green = image[index + 1];
 

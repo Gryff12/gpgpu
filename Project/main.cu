@@ -28,7 +28,8 @@ int main() {
 	std::vector<unsigned char> image;
 
     //This path needs to be edited for each user
-	std::string filename = "/home/nicolas.muller/afs/cuda/TP_map.png";
+    //Must be RGB only :)
+	std::string filename = "/home/nicolas.muller/afs/cuda/GPGPU 2023-04/dataset/frames/10.png";
 
 	if (loadImage(filename, image, width, height)) {
 		// L'image a été chargée avec succès
