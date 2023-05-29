@@ -34,8 +34,8 @@ int main() {
 
     //This path needs to be edited for each user
     //Must be RGB only :)
-	std::string filename_1 = "/home/nicolas.muller/afs/cuda/GPGPU 2023-04/dataset/frames/10.png";
-    std::string filename_2 = "/home/nicolas.muller/afs/cuda/GPGPU 2023-04/dataset/frames/11.png";
+	std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0058.png";
+    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0059.png";
 
     if (loadImage(filename_1, image_1, width, height)) {
 		// L'image a été chargée avec succès
@@ -76,6 +76,9 @@ int main() {
     std::cout << "redGreen size : " << redGreen.size() << std::endl;
     std::cout << "size : " << size << std::endl;
     std::cout << "redGreen size must be equal to size : " << (redGreen.size() == size) << std::endl;
+
+
+	saveImage("/home/maxime.madrau/afs/res.ppm", classification, width, height);
 
     return 0;
 }

@@ -24,9 +24,10 @@ std::vector<float> TextureSimilarityMeasures(const std::vector<unsigned char>& i
 
             unsigned int greenDistance = std::popcount(ToUnsignedInt(green1 ^ green2));
             unsigned int redDistance = std::popcount(ToUnsignedInt(red1 ^ red2));
-            int distance = greenDistance + redDistance;
+            unsigned int distance = greenDistance + redDistance;
 
-            float similarity = 1.0f - (static_cast<float>(distance) / (8 * sizeof(unsigned char))); // Normalisation en divisant par le nombre total de bits
+            float similarity = 1.0f - (static_cast<float>(distance) / 16); // Normalisation en divisant par le nombre total de bits
+
             similarities.push_back(similarity);
         }
     }

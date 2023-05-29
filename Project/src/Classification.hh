@@ -11,5 +11,7 @@
 std::vector<float> classifactionIndicators(std::vector<uint8_t> lbpCode, std::vector<float> colorSimilarityMeasures, std::vector<float> textureSimilarityMeasures);
 
 
+void saveImage(const char *filename, std::vector<float> pixels, int width, int height);
+
 
 #endif //PROJECT_CLASSIFICATION_HH
