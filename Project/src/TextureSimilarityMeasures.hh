@@ -5,7 +5,6 @@
 #ifndef PROJECT_TEXTURESIMILARITYMEASURES_HH
 #define PROJECT_TEXTURESIMILARITYMEASURES_HH
 
-
 #include <vector>
 #include <bit>
 #include <bitset>
@@ -13,5 +12,6 @@
 #include "../io.h"
 #include "textureFeaturesExtraction.hh"
 
-double** TextureSimilarityMeasures(Color** img1, Color** img2, int width, int height);
+double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int height);
+
 #endif //PROJECT_TEXTURESIMILARITYMEASURES_HH

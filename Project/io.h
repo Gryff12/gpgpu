@@ -10,13 +10,13 @@
 #include <png.h>
 
 struct Color {
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 };
 
-Color** loadImage(const std::string& filename, unsigned& width, unsigned& height);
+Color **loadImage(const std::string &filename, unsigned &width, unsigned &height);
 
-void saveImage(const char *filename, double** pixels, int width, int height);
+void saveImage(const char *filename, double **pixels, int width, int height);
 
 #endif //PROJECT_IO_H
