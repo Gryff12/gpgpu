@@ -30,35 +30,31 @@
 //}
 
 
-double** ColorSimilarityMeasures(Color** img1, Color** img2, int width, int height) {
-	// Init 2d array of size width, height
-	double** similarities = new double*[width];
-	for (int i = 0; i < width; i++)
-		similarities[i] = new double[height];
+double** ColorSimilarityMeasures(Color** img1, uint8_t ** img2, int width, int height) {
+	double** similarityMap = new double*[width];
 
-	int numPixels = height * width;
+	for (int i = 0; i < width; i++) {
+		similarityMap[i] = new double[height];
+		for (int j = 0; j < height; j++) {
+			// Obtaining the color components of the current pixel
+			uint8_t r1 = img1[i][j].r;
+			uint8_t g1 = img1[i][j].g;
+			//uint8_t b1 = img1[i][j].b;
 
-	for (int x = 0; x < width; x++) {
-		for (int y = 0; y < height; y++) {
+			// Obtaining the color components of the background model pixel
+			uint8_t r2 = img2[i][j];
+			uint8_t g2 = r2;
+			//uint8_t b2 = img2[i][j].b;
 
-			int index = (y * width + x) * 3; // Index of the current pixel in the image vectors
+			// Computing the similarity measures for each color component
+			double similarityR = 1.0 - (abs(r1 - r2) / 255.0);
+			double similarityG = 1.0 - (abs(g1 - g2) / 255.0);
+			//double similarityB = 1.0 - (abs(b1 - b2) / 255.0);
 
-			uint8_t green1 = img1[x][y].g; // Green channel of image 1
-			uint8_t green2 = img2[x][y].g; // Green channel of image 2
-
-			uint8_t red1 = img1[x][y].r; // Red channel of image 1
-			uint8_t red2 = img2[x][y].r; // Red channel of image 2
-
-			double minSum = static_cast<float>(std::min(green1, green2)) + static_cast<float>(std::min(red1, red2));
-			double maxSum = static_cast<float>(std::max(green1, green2)) + static_cast<float>(std::max(red1, red2));
-
-			float ratio = minSum / maxSum;
-			if (maxSum == 0)
-				ratio = 0.f;
-
-			similarities[x][y] = ratio;
+			// Taking the average similarity measure for each component
+			similarityMap[i][j] = (similarityR + similarityG) / 2.0;
 		}
 	}
 
-	return similarities;
+	return similarityMap;
 }

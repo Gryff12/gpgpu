@@ -33,8 +33,8 @@ int main() {
 
     //This path needs to be edited for each user
     //Must be RGB only :)
-	std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0058.png";
-    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0059.png";
+	std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0060.png";
+    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0061.png";
 
 	Color** image_1 = loadImage(filename_1, width, height);
 	Color** image_2 = loadImage(filename_2, width, height);
@@ -68,7 +68,7 @@ int main() {
 
 
     int size = width * height;
-    auto redGreen = ColorFeaturesExtraction(image_1, width, height);
+    //auto redGreen = ColorFeaturesExtraction(image_1, width, height);
 	auto lbpCode = TextureFeaturesExtraction(image_1, width, height);
 	auto colorSimilarityMeasures = ColorSimilarityMeasures(image_1, image_2, width, height);
 	auto textureSimilarityMeasures = TextureSimilarityMeasures(image_1, image_2, width, height);
