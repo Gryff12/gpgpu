@@ -8,10 +8,8 @@
 #include <vector>
 #include <cstdint>
 
-double** classifactionIndicators(int width, int height, uint8_t** lbpCode, double** colorSimilarityMeasures, double** textureSimilarityMeasures);
+double CalculateChoquetIntegral(double x1, double x2, double x3);
 
-
-void saveImage(const char *filename, double** pixels, int width, int height);
-
+bool **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold);
 
 #endif //PROJECT_CLASSIFICATION_HH

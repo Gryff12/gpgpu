@@ -17,4 +17,6 @@ struct Color {
 
 Color** loadImage(const std::string& filename, unsigned& width, unsigned& height);
 
+void saveImage(const char *filename, double** pixels, int width, int height);
+
 #endif //PROJECT_IO_H

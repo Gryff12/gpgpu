@@ -31,21 +31,6 @@ void sortThreeValues(T &a, T &b, T &c) {
     }
 }
 
-void saveImage(const char *filename, double **pixels, int width, int height) {
-    FILE *f = fopen(filename, "w");
-    (void) fprintf(f, "P6\n%d %d\n255\n", width, height);
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; ++x) {
-            static unsigned char color[3];
-            color[0] = (unsigned char) (std::min(1., pixels[x][y]) * 255);
-            color[1] = (unsigned char) (std::min(1., pixels[x][y]) * 255);
-            color[2] = (unsigned char) (std::min(1., pixels[x][y]) * 255);
-            (void) fwrite(color, 1, 3, f);
-        }
-    }
-    fclose(f);
-}
-
 //double** classifactionIndicators(int width, int height, uint8_t** lbpCode, double** colorSimilarityMeasures, double** textureSimilarityMeasures) {
 //
 //	double** classificationIndicators = new double*[width];
@@ -88,42 +73,18 @@ double CalculateChoquetIntegral(double x1, double x2, double x3) {
     return weightedSum;
 }
 
-bool IsBackgroundPixel(Color **img, int width, int height) {
-    // Extraction des fonctionnalités de texture
-    uint8_t **textureFeatures = TextureFeaturesExtraction(img, width, height);
-
-    // Extraction des fonctionnalités de couleur
-    uint8_t **colorFeatures = ColorFeaturesExtraction(img, width, height);
-
-    // Calcul des similarités dans l'espace couleur
-    double **colorSimilarity = ColorSimilarityMeasures(img, colorFeatures, width, height);
-    bool isBackground = true;
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-
-            // Calcul de la similarité dans l'espace texture
-            double textureSimilarity = TextureSimilarityMeasures(img, textureFeatures, width,
-                                                                 height);
-
-            // Calcul des indicateurs
-            Indicators indicators;
-            indicators.x1 = colorSimilarity[i][j];
-            indicators.x2 = colorSimilarity[i][j];
-            indicators.x3 = textureSimilarity;
-
-            // Calcul du Choquet Integral
-            double scalarValue = CalculateChoquetIntegral(indicators.x1, indicators.x2,
-                                                          indicators.x3);
-
-            // Classification en fonction du seuil
-            if (scalarValue >= 0.67) {
-                isBackground = false;
-                break;
-            }
-        }
-        if (!isBackground) {
-            break;
+bool **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold) {
+    bool **retVal = new bool *[width];
+    for (int i = 0; i < width; i++)
+        retVal[i] = new bool[height];
+    double **textureSimilarity = TextureSimilarityMeasures(img1, img2, width, height);
+    std::pair<double> **colorFeatures = ColorSimilarityMeasures(img1, img2, width, height);
+    for (int y = 0; i < height; i++) {
+        for (int x = 0; j < width; j++) {
+            double scalar = CalculateChoquetIntegral(textureSimilarity[x][y], colorFeatures[x][y].first,
+                                                     colorFeatures[x][y].second);
+            retVal[x][y] = scalar < threshold;
         }
     }
-    return isBackground;
+    return retVal;
 }
