@@ -89,18 +89,3 @@ void saveImage(const char *filename, double **pixels, int width, int height) {
     }
     fclose(f);
 }
-
-void saveForeground(const char *filename, int width, int height, bool **isBackground) {
-    FILE *f = fopen(filename, "w");
-    (void) fprintf(f, "P6\n%d %d\n255\n", width, height);
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; ++x) {
-            static unsigned char color[3];
-            color[0] = !isBackground[x][y];
-            color[1] = !isBackground[x][y];
-            color[2] = !isBackground[x][y];
-            (void) fwrite(color, 1, 3, f);
-        }
-    }
-    fclose(f);
-}

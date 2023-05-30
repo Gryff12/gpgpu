@@ -17,6 +17,6 @@
 
 double CalculateChoquetIntegral(double x1, double x2, double x3);
 
-bool **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold);
+double **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold);
 
 #endif //PROJECT_CLASSIFICATION_HH

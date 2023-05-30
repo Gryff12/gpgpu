@@ -19,6 +19,5 @@ Color **loadImage(const std::string &filename, unsigned &width, unsigned &height
 
 void saveImage(const char *filename, double **pixels, int width, int height);
 
-void saveForeground(const char *filename, int width, int height, bool **isBackground);
 
 #endif //PROJECT_IO_H

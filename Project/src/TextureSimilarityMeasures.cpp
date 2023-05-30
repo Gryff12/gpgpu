@@ -20,7 +20,7 @@ double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int he
         for (int y = 0; y < height; y++) {
             std::bitset<8> bitset1(ToUnsignedInt(lbp1[x][y]));
             std::bitset<8> bitset2(ToUnsignedInt(lbp2[x][y]));
-            similarities[x][y] = (double) (bitset1 ^ bitset2).count() / 8;
+            similarities[x][y] = (double) (bitset1 ^ bitset2).count() / 8.;
         }
     }
     return similarities;

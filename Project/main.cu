@@ -29,8 +29,8 @@ int main() {
 
     //This path needs to be edited for each user
     //Must be RGB only :)
-    std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0060.png";
-    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0061.png";
+    std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0061.png";
+    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0062.png";
     Color **image_1 = loadImage(filename_1, width, height);
     Color **image_2 = loadImage(filename_2, width, height);
     if (image_1) {
@@ -45,9 +45,6 @@ int main() {
     }
     std::cout << std::endl;
     if (image_2) {
-        // L'image a été chargée avec succès
-        // Faites ce que vous voulez avec l'image ici
-
         std::cout << "Largeur : " << width << std::endl;
         std::cout << "Hauteur : " << height << std::endl;
         std::cout << "Nombre de pixels : " << width * height << std::endl;
@@ -55,8 +52,9 @@ int main() {
         std::cout << "Fail" << std::endl;
     }
     std::cout << std::endl;
-    bool **backgoundPixels = IsBackgroundPixel(image_1, image_2, width, height, 0.67);
 
-    saveForeground("res.ppm", width, height, backgoundPixels);
+    double **backgroundPixels = IsBackgroundPixel(image_1, image_2, width, height, 0.67);
+
+	saveImage("/home/maxime.madrau/afs/res.ppm", backgroundPixels, width, height);
     return 0;
 }
