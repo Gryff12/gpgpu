@@ -7,7 +7,8 @@
 
 #include <vector>
 #include <iostream>
+#include "../io.h"
 
-std::vector<unsigned int> ColorFeaturesExtraction(std::vector<unsigned char> image, unsigned width, unsigned height);
+uint8_t** ColorFeaturesExtraction(Color**, unsigned int width, unsigned int height);
 
 #endif //PROJECT_COLORFEATURESEXTRACTION_HH

@@ -10,6 +10,7 @@
 #include <bit>
 #include <bitset>
 #include <cstdint>
+#include "../io.h"
 
-std::vector<float> TextureSimilarityMeasures(const std::vector<unsigned char>& img1, const std::vector<unsigned char>& img2, int height, int width);
+double** TextureSimilarityMeasures(Color** img1, Color** img2, int width, int height);
 #endif //PROJECT_TEXTURESIMILARITYMEASURES_HH

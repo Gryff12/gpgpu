@@ -29,55 +29,60 @@
 int main() {
 
 	unsigned int width, height;
-	std::vector<unsigned char> image_1;
-    std::vector<unsigned char> image_2;
+
 
     //This path needs to be edited for each user
     //Must be RGB only :)
 	std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0058.png";
     std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0059.png";
 
-    if (loadImage(filename_1, image_1, width, height)) {
+	Color** image_1 = loadImage(filename_1, width, height);
+	Color** image_2 = loadImage(filename_2, width, height);
+
+    if (image_1) {
 		// L'image a été chargée avec succès
 		// Faites ce que vous voulez avec l'image ici
 
 		std::cout << "Largeur : " << width << std::endl;
 		std::cout << "Hauteur : " << height << std::endl;
-		std::cout << "Nombre de pixels : " << image_1.size() << std::endl;
+		std::cout << "Nombre de pixels : " << width * height << std::endl;
 	} else {
 		std::cout << "Fail" << std::endl;
 	}
 
+	std::cout << std::endl;
 
-    if (loadImage(filename_2, image_2, width, height)) {
+    if (image_2) {
         // L'image a été chargée avec succès
         // Faites ce que vous voulez avec l'image ici
 
         std::cout << "Largeur : " << width << std::endl;
         std::cout << "Hauteur : " << height << std::endl;
-        std::cout << "Nombre de pixels : " << image_2.size() << std::endl;
+        std::cout << "Nombre de pixels : " << width * height << std::endl;
     } else {
         std::cout << "Fail" << std::endl;
     }
 
+	std::cout << std::endl;
+
+
 
     int size = width * height;
-    std::vector<unsigned int> redGreen = ColorFeaturesExtraction(image_1, width, height);
-    std::vector<uint8_t> lbpCode = TextureFeaturesExtraction(image_1, width, height);
-    std::vector<float> colorSimilarityMeasures = ColorSimilarityMeasures(image_1, image_2, width, height);
-    std::vector<float> textureSimilarityMeasures = TextureSimilarityMeasures(image_1, image_2, width, height);
-
-    std::vector<float> classification = classifactionIndicators(lbpCode, colorSimilarityMeasures, textureSimilarityMeasures);
-
-    std::cout << "classification size : " << classification.size() << std::endl;
-    std::cout << "textureSimilarityMeasures size : " << textureSimilarityMeasures.size() << std::endl;
-    std::cout << "colorSimilarityMeasures size : " << colorSimilarityMeasures.size() << std::endl;
-    std::cout << "lbpCode size : " << lbpCode.size() << std::endl;
-    std::cout << "redGreen size : " << redGreen.size() << std::endl;
-    std::cout << "size : " << size << std::endl;
-    std::cout << "redGreen size must be equal to size : " << (redGreen.size() == size) << std::endl;
-
-
+    auto redGreen = ColorFeaturesExtraction(image_1, width, height);
+	auto lbpCode = TextureFeaturesExtraction(image_1, width, height);
+	auto colorSimilarityMeasures = ColorSimilarityMeasures(image_1, image_2, width, height);
+	auto textureSimilarityMeasures = TextureSimilarityMeasures(image_1, image_2, width, height);
+	auto classification = classifactionIndicators(width, height, lbpCode, colorSimilarityMeasures, textureSimilarityMeasures);
+//
+//    //std::cout << "classification size : " << classification.size() << std::endl;
+//    //std::cout << "textureSimilarityMeasures size : " << textureSimilarityMeasures.size() << std::endl;
+//    //std::cout << "colorSimilarityMeasures size : " << colorSimilarityMeasures.size() << std::endl;
+//    //std::cout << "lbpCode size : " << lbpCode.size() << std::endl;
+//    //std::cout << "redGreen size : " << redGreen.size() << std::endl;
+//    //std::cout << "size : " << size << std::endl;
+//    //std::cout << "redGreen size must be equal to size : " << (redGreen.size() == size) << std::endl;
+//
+//
 	saveImage("/home/maxime.madrau/afs/res.ppm", classification, width, height);
 
     return 0;

@@ -9,6 +9,12 @@
 #include <vector>
 #include <png.h>
 
-bool loadImage(const std::string& filename, std::vector<unsigned char>& image, unsigned& width, unsigned& height);
+struct Color {
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+};
+
+Color** loadImage(const std::string& filename, unsigned& width, unsigned& height);
 
 #endif //PROJECT_IO_H

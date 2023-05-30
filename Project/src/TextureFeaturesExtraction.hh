@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <cstdint>
+#include "../io.h"
 
-std::vector<uint8_t> TextureFeaturesExtraction(const std::vector<uint8_t>& image, int width, int height);
+uint8_t** TextureFeaturesExtraction(Color** image, int width, int height);
 #endif //PROJECT_TEXTUREFEATURESEXTRACTION_HH

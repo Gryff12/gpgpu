@@ -6,7 +6,8 @@
 #define PROJECT_COLORSIMILARITYMEASURES_HH
 
 #include <vector>
+#include "../io.h"
 
-std::vector<float> ColorSimilarityMeasures(const std::vector<unsigned char>& img1, const std::vector<unsigned char>& img2, int height, int width);
+double** ColorSimilarityMeasures(Color** img1, Color** img2, int width, int height);
 
 #endif //PROJECT_COLORSIMILARITYMEASURES_HH

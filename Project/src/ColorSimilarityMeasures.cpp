@@ -30,23 +30,34 @@
 //}
 
 
-std::vector<float> ColorSimilarityMeasures(const std::vector<unsigned char>& img1, const std::vector<unsigned char>& img2, int height, int width) {
-	std::vector<float> similarities;
+double** ColorSimilarityMeasures(Color** img1, Color** img2, int width, int height) {
+	// Init 2d array of size width, height
+	double** similarities = new double*[width];
+	for (int i = 0; i < width; i++)
+		similarities[i] = new double[height];
+
 	int numPixels = height * width;
 
-	for (int i = 0; i < numPixels; i++) {
-		int index = i * 3; // Index of the current pixel in the image vectors
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
 
-		unsigned char green1 = img1[index + 1]; // Green channel of image 1
-		unsigned char green2 = img2[index + 1]; // Green channel of image 2
+			int index = (y * width + x) * 3; // Index of the current pixel in the image vectors
 
-		// Compute the similarity between the green channel values
-		float similarity = static_cast<float>(green1) / static_cast<float>(green2);
+			uint8_t green1 = img1[x][y].g; // Green channel of image 1
+			uint8_t green2 = img2[x][y].g; // Green channel of image 2
 
-		// Normalize the similarity value between 0 and 1
-		similarity = std::min(std::max(similarity, 0.0f), 1.0f);
+			uint8_t red1 = img1[x][y].r; // Red channel of image 1
+			uint8_t red2 = img2[x][y].r; // Red channel of image 2
 
-		similarities.push_back(similarity);
+			double minSum = static_cast<float>(std::min(green1, green2)) + static_cast<float>(std::min(red1, red2));
+			double maxSum = static_cast<float>(std::max(green1, green2)) + static_cast<float>(std::max(red1, red2));
+
+			float ratio = minSum / maxSum;
+			if (maxSum == 0)
+				ratio = 0.f;
+
+			similarities[x][y] = ratio;
+		}
 	}
 
 	return similarities;

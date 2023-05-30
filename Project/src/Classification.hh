@@ -8,10 +8,10 @@
 #include <vector>
 #include <cstdint>
 
-std::vector<float> classifactionIndicators(std::vector<uint8_t> lbpCode, std::vector<float> colorSimilarityMeasures, std::vector<float> textureSimilarityMeasures);
+double** classifactionIndicators(int width, int height, uint8_t** lbpCode, double** colorSimilarityMeasures, double** textureSimilarityMeasures);
 
 
-void saveImage(const char *filename, std::vector<float> pixels, int width, int height);
+void saveImage(const char *filename, double** pixels, int width, int height);
 
 
 #endif //PROJECT_CLASSIFICATION_HH
