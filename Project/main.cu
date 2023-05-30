@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <thrust/device_vector.h>
-#include "src/ColorFeaturesExtraction.hh"
 #include "src/TextureFeaturesExtraction.hh"
 #include "src/ColorSimilarityMeasures.hh"
 #include "src/TextureSimilarityMeasures.hh"
 #include "src/Classification.hh"
-#include "test.h"
 #include "io.h"
 
 /*__host__ uint8_t TextureFeaturesExtraction(const thrust::device_vector<uint8_t>& image, int width, int height, int x, int y) {
@@ -57,23 +55,8 @@ int main() {
         std::cout << "Fail" << std::endl;
     }
     std::cout << std::endl;
-    int size = width * height;
-    //auto redGreen = ColorFeaturesExtraction(image_1, width, height);
-    auto lbpCode = TextureFeaturesExtraction(image_1, width, height);
-    auto colorSimilarityMeasures = ColorSimilarityMeasures(image_1, image_2, width, height);
-    auto textureSimilarityMeasures = TextureSimilarityMeasures(image_1, image_2, width, height);
-    auto classification = classifactionIndicators(width, height, lbpCode, colorSimilarityMeasures,
-                                                  textureSimilarityMeasures);
-//
-//    //std::cout << "classification size : " << classification.size() << std::endl;
-//    //std::cout << "textureSimilarityMeasures size : " << textureSimilarityMeasures.size() << std::endl;
-//    //std::cout << "colorSimilarityMeasures size : " << colorSimilarityMeasures.size() << std::endl;
-//    //std::cout << "lbpCode size : " << lbpCode.size() << std::endl;
-//    //std::cout << "redGreen size : " << redGreen.size() << std::endl;
-//    //std::cout << "size : " << size << std::endl;
-//    //std::cout << "redGreen size must be equal to size : " << (redGreen.size() == size) << std::endl;
-//
-//
-    saveImage("/home/maxime.madrau/afs/res.ppm", classification, width, height);
+    bool **backgoundPixels = IsBackgroundPixel(image_1, image_2, width, height, 0.67);
+
+    saveForeground("res.ppm", width, height, backgoundPixels);
     return 0;
 }

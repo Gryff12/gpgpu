@@ -14,8 +14,8 @@ double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int he
     double **similarities = new double *[width];
     for (int i = 0; i < width; i++)
         similarities[i] = new double[height];
-    auto lbp1 = textureFeaturesExtraction(img1, width, height);
-    auto lbp2 = textureFeaturesExtraction(img2, width, height);
+    auto lbp1 = TextureFeaturesExtraction(img1, width, height);
+    auto lbp2 = TextureFeaturesExtraction(img2, width, height);
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             std::bitset<8> bitset1(ToUnsignedInt(lbp1[x][y]));

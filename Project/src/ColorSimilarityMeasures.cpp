@@ -3,10 +3,10 @@
 //
 #include "ColorSimilarityMeasures.hh"
 
-std::pair<double> **ColorSimilarityMeasures(Color **img1, Color **img2, int width, int height) {
-    std::pair<double> **retVal = new std::pair<float> *[width];
+std::pair<double, double> **ColorSimilarityMeasures(Color **img1, Color **img2, int width, int height) {
+    std::pair<double, double> **retVal = new std::pair<double, double> *[width];
     for (int i = 0; i < width; i++)
-        retVal[i] = new std::pair<float>[height];
+        retVal[i] = new std::pair<double, double>[height];
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             double r = std::min(img1[x][y].r, img2[x][y].r) / std::max(img1[x][y].r, img2[x][y].r);
@@ -15,6 +15,4 @@ std::pair<double> **ColorSimilarityMeasures(Color **img1, Color **img2, int widt
         }
     }
     return retVal;
-}
-
 }

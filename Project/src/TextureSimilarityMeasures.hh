@@ -10,7 +10,7 @@
 #include <bitset>
 #include <cstdint>
 #include "../io.h"
-#include "textureFeaturesExtraction.hh"
+#include "TextureFeaturesExtraction.hh"
 
 double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int height);
 

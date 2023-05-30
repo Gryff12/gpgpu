@@ -5,6 +5,13 @@
 #ifndef PROJECT_CLASSIFICATION_HH
 #define PROJECT_CLASSIFICATION_HH
 
+
+#include "../io.h"
+#include "TextureFeaturesExtraction.hh"
+#include "ColorSimilarityMeasures.hh"
+#include "TextureSimilarityMeasures.hh"
+#include <png.h>
+#include <iostream>
 #include <vector>
 #include <cstdint>
 
