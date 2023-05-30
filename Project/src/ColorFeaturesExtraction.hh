@@ -9,6 +9,6 @@
 #include <iostream>
 #include "../io.h"
 
-uint8_t** ColorFeaturesExtraction(Color**, unsigned int width, unsigned int height);
+uint8_t* ColorFeaturesExtraction(Color**, unsigned int width, unsigned int height);
 
 #endif //PROJECT_COLORFEATURESEXTRACTION_HH
