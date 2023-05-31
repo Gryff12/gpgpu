@@ -30,7 +30,6 @@ uint8_t **TextureFeaturesExtraction(Color **image, int width, int height) {
             current_lbpCode |= (getPixel(image, x - 1, y + 1, width, height) < centerPixel) << 1;
             current_lbpCode |= (getPixel(image, x - 1, y, width, height) < centerPixel);
 
-            //std::cout << "current_lbpCode: " << (int)current_lbpCode << std::endl;
             lbpCode[x][y] = current_lbpCode;
         }
     }

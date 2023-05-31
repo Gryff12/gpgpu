@@ -41,7 +41,7 @@ double **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, do
 			sortThreeValues(x1, x2, x3);
 
 			double scalar = 0.1 * x1 + 0.3 * x2 + 0.6 * x3;
-			
+
             retVal[x][y] = scalar < threshold;
         }
     }
