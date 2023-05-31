@@ -18,9 +18,12 @@ double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int he
     auto lbp2 = TextureFeaturesExtraction(img2, width, height);
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
-            std::bitset<8> bitset1(ToUnsignedInt(lbp1[x][y]));
-            std::bitset<8> bitset2(ToUnsignedInt(lbp2[x][y]));
-            similarities[x][y] = (double) (bitset1 ^ bitset2).count() / 8.;
+			uint8_t bitset1_2 = ToUnsignedInt(lbp1[x][y]);
+			uint8_t bitset2_2 = ToUnsignedInt(lbp2[x][y]);
+			uint8_t diff = bitset1_2 ^ bitset2_2;
+			double count = std::popcount(diff);
+
+            similarities[x][y] = (double) count / 8.;
         }
     }
     return similarities;
