@@ -1,5 +1,13 @@
 #include "TextureSimilarityMeasures.hh"
 
+__device__ uint8_t getPixel(Color *image, int x, int y, size_t pitch, int width, int height) {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        return 0;
+    }
+    Color pixel = image[y * pitch / sizeof(Color) + x];
+    return pixel.r / 2 + pixel.g / 2;
+}
+
 __global__ void TextureSimilarityKernel(Color *d_img1, Color *d_img2, double *d_similarities, size_t pitch, int width, int height) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -27,6 +35,8 @@ __global__ void TextureSimilarityKernel(Color *d_img1, Color *d_img2, double *d_
         current_lbpCode2 |= (getPixel(d_img2, x, y + 1, pitch, width, height) < centerPixel2) << 2;
         current_lbpCode2 |= (getPixel(d_img2, x - 1, y + 1, pitch, width, height) < centerPixel2) << 1;
         current_lbpCode2 |= (getPixel(d_img2, x - 1, y, pitch, width, height) < centerPixel2);
+
+        __syncthreads();
 
         uint8_t diff = current_lbpCode1 ^ current_lbpCode2;
         double count = __popc(diff);

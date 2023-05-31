@@ -1,27 +1,10 @@
 #include <stdio.h>
 #include <iostream>
 #include <thrust/device_vector.h>
-#include "src/TextureFeaturesExtraction.hh"
 #include "src/ColorSimilarityMeasures.hh"
 #include "src/TextureSimilarityMeasures.hh"
 #include "src/Classification.hh"
 #include "io.h"
-
-/*__host__ uint8_t TextureFeaturesExtraction(const thrust::device_vector<uint8_t>& image, int width, int height, int x, int y) {
-	uint8_t centerPixel = image[y * width + x];
-
-	uint8_t lbpCode = 0;
-	lbpCode |= (image[(y - 1) * width + (x - 1)] >= centerPixel) << 7;
-	lbpCode |= (image[(y - 1) * width + x] >= centerPixel) << 6;
-	lbpCode |= (image[(y - 1) * width + (x + 1)] >= centerPixel) << 5;
-	lbpCode |= (image[y * width + (x + 1)] >= centerPixel) << 4;
-	lbpCode |= (image[(y + 1) * width + (x + 1)] >= centerPixel) << 3;
-	lbpCode |= (image[(y + 1) * width + x] >= centerPixel) << 2;
-	lbpCode |= (image[(y + 1) * width + (x - 1)] >= centerPixel) << 1;
-	lbpCode |= (image[y * width + (x - 1)] >= centerPixel);
-
-	return lbpCode;
-}*/
 
 int main() {
     unsigned int width, height;
@@ -38,7 +21,9 @@ int main() {
         // Faites ce que vous voulez avec l'image ici
 
         std::cout << "Largeur : " << width << std::endl;
+        // 640
         std::cout << "Hauteur : " << height << std::endl;
+        // 360
         std::cout << "Nombre de pixels : " << width * height << std::endl;
     } else {
         std::cout << "Fail" << std::endl;
@@ -53,8 +38,24 @@ int main() {
     }
     std::cout << std::endl;
 
-    bool **backgroundPixels = isBackgroundPixel(image_1, image_2, width, height, 0.67);
+    Color *img_1 = new Color[width * height];
+    Color *img_2 = new Color[width * height];
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; ++y) {
+            img_1[y * width + x] = image_1[x][y];
+            img_2[y * width + x] = image_2[x][y];
+        }
+    }
+
+    bool *backgroundPixels = IsBackgroundPixel(img_1, img_2, width, height, 0.67);
 
     saveImage("res.ppm", backgroundPixels, width, height);
+
+    delete [] img_1;
+    delete [] img_2;
+    delete [] image_1;
+    delete [] image_2;
+    delete [] backgroundPixels;
+
     return 0;
 }

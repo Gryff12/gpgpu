@@ -90,15 +90,31 @@ void saveImage(const char *filename, double **pixels, int width, int height) {
     fclose(f);
 }
 
-void saveImage(const char *filename, bool **pixels, int width, int height) {
+void saveImage(const char *filename, bool *pixels, int width, int height) {
     FILE *f = fopen(filename, "w");
     (void) fprintf(f, "P6\n%d %d\n255\n", width, height);
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; ++x) {
             static unsigned char color[3];
-            color[0] = (unsigned char) pixels[x][y] * 255;
-            color[1] = (unsigned char) pixels[x][y] * 255;
-            color[2] = (unsigned char) pixels[x][y] * 255;
+            color[0] = (unsigned char) pixels[y * width + x] * 255;
+            color[1] = (unsigned char) pixels[y * width + x] * 255;
+            color[2] = (unsigned char) pixels[y * width + x] * 255;
+            (void) fwrite(color, 1, 3, f);
+        }
+    }
+    fclose(f);
+}
+
+
+void saveImage(const char *filename, Color *pixels, int width, int height){
+    FILE *f = fopen(filename, "w");
+    (void) fprintf(f, "P6\n%d %d\n255\n", width, height);
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; ++x) {
+            static unsigned char color[3];
+            color[0] = (unsigned char) pixels[y * width + x].r;
+            color[1] = (unsigned char) pixels[y * width + x].g;
+            color[2] = (unsigned char) pixels[y * width + x].b;
             (void) fwrite(color, 1, 3, f);
         }
     }
