@@ -24,12 +24,12 @@ void sortThreeValues(double& a, double& b, double& c) {
     }
 }
 
-double **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold) {
-	double **retVal = new double *[width];
+bool **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold) {
+	bool **retVal = new bool *[width];
     for (int i = 0; i < width; i++)
-        retVal[i] = new double[height];
+        retVal[i] = new bool[height];
 
-    double **textureSimilarity = TextureSimilarityMeasures(img1, img2, width, height);
+    bool **textureSimilarity = TextureSimilarityMeasures(img1, img2, width, height);
     std::pair<double, double> **colorFeatures = ColorSimilarityMeasures(img1, img2, width, height);
 
     for (int y = 0; y < height; y++) {

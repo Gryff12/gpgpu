@@ -14,4 +14,6 @@
 
 double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int height);
 
+__global__ void TextureSimilarityKernel(Color *d_img1, Color *d_img2, double *d_similarities, size_t pitch, int width, int height);
+
 #endif //PROJECT_TEXTURESIMILARITYMEASURES_HH

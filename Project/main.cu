@@ -53,8 +53,8 @@ int main() {
     }
     std::cout << std::endl;
 
-    double **backgroundPixels = IsBackgroundPixel(image_1, image_2, width, height, 0.67);
+    bool **backgroundPixels = isBackgroundPixel(image_1, image_2, width, height, 0.67);
 
-	saveImage("res.ppm", backgroundPixels, width, height);
+    saveImage("res.ppm", backgroundPixels, width, height);
     return 0;
 }

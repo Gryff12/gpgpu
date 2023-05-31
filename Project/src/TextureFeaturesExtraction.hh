@@ -11,4 +11,6 @@
 
 uint8_t **TextureFeaturesExtraction(Color **image, int width, int height);
 
+__device__ uint8_t **TextureFeaturesExtraction(Color **image, int width, int height);
+
 #endif //PROJECT_TEXTUREFEATURESEXTRACTION_HH
