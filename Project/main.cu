@@ -29,8 +29,8 @@ int main() {
 
     //This path needs to be edited for each user
     //Must be RGB only :)
-    std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0061.png";
-    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0062.png";
+    std::string filename_1 = "../dataset/video_frames/0061.png";
+    std::string filename_2 = "../dataset/video_frames/0062.png";
     Color **image_1 = loadImage(filename_1, width, height);
     Color **image_2 = loadImage(filename_2, width, height);
     if (image_1) {
@@ -55,6 +55,6 @@ int main() {
 
     double **backgroundPixels = IsBackgroundPixel(image_1, image_2, width, height, 0.67);
 
-	saveImage("/home/maxime.madrau/afs/res.ppm", backgroundPixels, width, height);
+	saveImage("res.ppm", backgroundPixels, width, height);
     return 0;
 }
