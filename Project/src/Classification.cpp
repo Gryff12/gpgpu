@@ -24,25 +24,23 @@ void sortThreeValues(double& a, double& b, double& c) {
     }
 }
 
-bool **IsBackgroundPixel(Color **img1, Color **img2, int width, int height, double threshold) {
-	bool **retVal = new bool *[width];
-    for (int i = 0; i < width; i++)
-        retVal[i] = new bool[height];
+bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double threshold) {
+	bool *retVal = new bool [width * height];
 
-    bool **textureSimilarity = TextureSimilarityMeasures(img1, img2, width, height);
-    std::pair<double, double> **colorFeatures = ColorSimilarityMeasures(img1, img2, width, height);
+    double *textureSimilarity = TextureSimilarityMeasures(img1, img2, width, height);
+    std::pair<double, double> *colorFeatures = ColorSimilarityMeasures(img1, img2, width, height);
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
-            double x1 = textureSimilarity[x][y];
-			double x2 = colorFeatures[x][y].first;
-			double x3 = colorFeatures[x][y].second;
+            double x1 = (double) textureSimilarity[y * width + x];
+			double x2 = colorFeatures[y * width + x].first;
+			double x3 = colorFeatures[y * width + x].second;
 
 			sortThreeValues(x1, x2, x3);
 
 			double scalar = 0.1 * x1 + 0.3 * x2 + 0.6 * x3;
 
-            retVal[x][y] = scalar < threshold;
+            retVal[y * width + x] = scalar < threshold;
         }
     }
     return retVal;

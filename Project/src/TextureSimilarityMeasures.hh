@@ -9,8 +9,9 @@
 #include <bit>
 #include <bitset>
 #include "../io.h"
+#include "TextureFeaturesExtraction.hh"
 
-double **TextureSimilarityMeasures(Color **img1, Color **img2, int width, int height);
+double *TextureSimilarityMeasures(Color *img1, Color *img2, int width, int height);
 
 
 #ifdef __CUDA_ARCH__

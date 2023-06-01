@@ -14,11 +14,8 @@
 
 double CalculateChoquetIntegral(double x1, double x2, double x3);
 
-bool *IsBackgroundPixel(Color * img1, Color * img2, int
-width,
-int height,
-double threshold
-);
+bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double threshold);
+
 
 #ifdef __CUDA_ARCH__
 
