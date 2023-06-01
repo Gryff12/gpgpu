@@ -6,7 +6,6 @@
 #define PROJECT_TEXTUREFEATURESEXTRACTION_HH
 
 #include <vector>
-#include <cstdint>
 #include "../io.h"
 
 uint8_t getPixel(Color **image, int x, int y, int width, int height);
