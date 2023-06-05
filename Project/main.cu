@@ -49,13 +49,13 @@ int main() {
 
     bool *backgroundPixels = IsBackgroundPixel(img_1, img_2, width, height, 0.67);
 
-    saveImage("res.ppm", backgroundPixels, width, height);
+    saveImage("/afs/cri.epita.fr/user/m/ma/maxime.madrau/u/resr.ppm", backgroundPixels, width, height);
 
-    delete [] img_1;
-    delete [] img_2;
-    delete [] image_1;
-    delete [] image_2;
-    delete [] backgroundPixels;
+    //delete [] img_1;
+    //delete [] img_2;
+    //delete [] image_1;
+    //delete [] image_2;
+    //delete [] backgroundPixels;
 
     return 0;
 }

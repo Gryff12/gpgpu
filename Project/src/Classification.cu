@@ -18,19 +18,20 @@ __device__ void sortThreeValues(double &a, double &b, double &c) {
     }
 }
 
-__global__ void
-IsBackgroundPixelKernel(bool *d_retVal, size_t pitch_ret, double *d_textureSimilarity, size_t pitch_texture,
-                        double *d_colorFeatures_r, size_t pitch_r, double *d_colorFeatures_g, size_t pitch_g,
-                        double threshold, int width, int height) {
+__global__ void IsBackgroundPixelKernel(char *d_retVal, size_t pitch_ret, double *d_textureSimilarity,
+                                        size_t pitch_texture, double *d_colorFeatures_r, size_t pitch_r,
+                                        double *d_colorFeatures_g, size_t pitch_g, double threshold, int width,
+                                        int height) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
     if (x < width && y < height) {
-        double x1 = d_textureSimilarity[y * pitch_texture + x];
-        double x2 = d_colorFeatures_r[y * pitch_r + x];
-        double x3 = d_colorFeatures_g[y * pitch_g + x];
+        double x1 = d_textureSimilarity[y * pitch_texture / sizeof(double) + x];
+        double x2 = d_colorFeatures_r[y * pitch_r / sizeof(double) + x];
+        double x3 = d_colorFeatures_g[y * pitch_g / sizeof(double) + x];
         sortThreeValues(x1, x2, x3);
         double scalar = 0.1 * x1 + 0.3 * x2 + 0.6 * x3;
-        d_retVal[y * pitch_ret + x] = (scalar < threshold);
+        char *row = (char *)d_retVal + y * pitch_ret;
+        row[x] = (scalar < threshold);
     }
 }
 
@@ -44,7 +45,7 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
     size_t pitch1;
     size_t pitch2;
     Color *d_img1, *d_img2;
-    err = cudaMallocPitch((void **) &d_img1, &pitch1, width * sizeof(Color), height);
+    err = cudaMallocPitch(&d_img1, &pitch1, width * sizeof(Color), height);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to allocate memory for d_img1 (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
@@ -101,17 +102,20 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
         fprintf(stderr, "Failed to allocate memory for d_colorFeatures_g (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+    
 
     // Launch the ColorSimilarityKernel
     ColorSimilarityKernel<<<gridDim, blockDim>>>(d_img1, pitch1, d_img2, pitch2, d_colorFeatures_r,
                                                  colorFeaturesPitch_r, d_colorFeatures_g, colorFeaturesPitch_g, width,
                                                  height);
     cudaDeviceSynchronize();
+    
+    
 
     // Allocate memory for the result on the GPU
-    bool *d_retVal;
+    char *d_retVal;
     size_t pitch;
-    err = cudaMallocPitch((void **) &d_retVal, &pitch, width * sizeof(bool), height);
+    err = cudaMallocPitch((void **) &d_retVal, &pitch, width * sizeof(char), height);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to allocate memory for d_retVal (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
@@ -121,16 +125,18 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
     IsBackgroundPixelKernel<<<gridDim, blockDim>>>(d_retVal, pitch, d_textureSimilarity, textureSimilarityPitch,
                                                    d_colorFeatures_r, colorFeaturesPitch_r, d_colorFeatures_g,
                                                    colorFeaturesPitch_g,
-                                                   threshold, width, height);
+                                                   threshold, width, height); // This line makes it crash
     cudaDeviceSynchronize();
 
+
     // Copy the result from GPU to CPU
-    err = cudaMemcpy2D(retVal, width * sizeof(bool), d_retVal, pitch, width * sizeof(bool), height,
-                       cudaMemcpyDeviceToHost);
-    if (err != cudaSuccess) {
+	err = cudaMemcpy2D(retVal, width * sizeof(char), d_retVal, pitch, width * sizeof(char), height, cudaMemcpyDeviceToHost);
+
+    if (err != cudaSuccess && 0) {
         fprintf(stderr, "Failed to copy retVal from device to host (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
+    cudaDeviceSynchronize();
 
     // Free GPU memory
     err = cudaFree(d_img1);
