@@ -6,50 +6,67 @@
 #include "src/Classification.hh"
 #include "io.h"
 
-#include "benchmark/benchmark.hh"
+#include "benchmark/benchmark.h"
 
 int main() {
 
-	benchmark::time_output total_benchmark = benchmark::timeit<void*>([](){
-		
-	unsigned int width, height;
+    unsigned int width, height;
 
-    //This path needs to be edited for each user
-    //Must be RGB only :)
-    std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0061.png";
-    std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0062.png";
-    Color **image_1 = loadImage(filename_1, width, height);
-    Color **image_2 = loadImage(filename_2, width, height);
-    if (image_1) {
-        // L'image a été chargée avec succès
-        // Faites ce que vous voulez avec l'image ici
+    benchmark::time_output load_image_1_benchmark = benchmark::timeit<Color*>([&width, &height](){
+        std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0061.png";
+        Color **image_1 = loadImage(filename_1, width, height);
+        if (image_1) {
+            // L'image a été chargée avec succès
+            // Faites ce que vous voulez avec l'image ici
 
-        std::cout << "Largeur : " << width << std::endl;
-        // 640
-        std::cout << "Hauteur : " << height << std::endl;
-        // 360
-        std::cout << "Nombre de pixels : " << width * height << std::endl;
-    } else {
-        std::cout << "Fail" << std::endl;
-    }
-    std::cout << std::endl;
-    if (image_2) {
-        std::cout << "Largeur : " << width << std::endl;
-        std::cout << "Hauteur : " << height << std::endl;
-        std::cout << "Nombre de pixels : " << width * height << std::endl;
-    } else {
-        std::cout << "Fail" << std::endl;
-    }
-    std::cout << std::endl;
-
-    Color *img_1 = new Color[width * height];
-    Color *img_2 = new Color[width * height];
-    for (int x = 0; x < width; x++) {
-        for (int y = 0; y < height; ++y) {
-            img_1[y * width + x] = image_1[x][y];
-            img_2[y * width + x] = image_2[x][y];
+            std::cout << "Largeur : " << width << std::endl;
+            // 640
+            std::cout << "Hauteur : " << height << std::endl;
+            // 360
+            std::cout << "Nombre de pixels : " << width * height << std::endl;
+        } else {
+            std::cout << "Fail" << std::endl;
         }
-    }
+
+        Color *img_1 = new Color[width * height];
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; ++y)
+                img_1[y * width + x] = image_1[x][y];
+
+        return img_1;
+    });
+
+    Color *img_1 = load_image_1_benchmark.result;
+
+    std::cout << "load_image_1_benchmark: " << load_image_1_benchmark.ms << " ms" << std::endl;
+
+    benchmark::time_output load_image_2_benchmark = benchmark::timeit<Color*>([&width, &height](){
+        std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0062.png";
+        Color **image_2 = loadImage(filename_2, width, height);
+        if (image_2) {
+            std::cout << "Largeur : " << width << std::endl;
+            std::cout << "Hauteur : " << height << std::endl;
+            std::cout << "Nombre de pixels : " << width * height << std::endl;
+        } else {
+            std::cout << "Fail" << std::endl;
+        }
+
+        Color *img_2 = new Color[width * height];
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; ++y)
+                img_2[y * width + x] = image_2[x][y];
+
+        return img_2;
+    });
+
+    Color *img_2 = load_image_2_benchmark.result;
+
+    std::cout << "load_image_2_benchmark: " << load_image_2_benchmark.ms << " ms" << std::endl;
+
+
+
+    //benchmark::time_output total_benchmark = benchmark::timeit<void*>([](){
+
     
     benchmark::time_output benchmark = benchmark::timeit<bool*>([img_1, img_2, width, height]() {
 		return IsBackgroundPixel(img_1, img_2, width, height, 0.67);
@@ -69,11 +86,11 @@ int main() {
     //delete [] image_2;
     //delete [] backgroundPixels;
     
-    return nullptr;
-    
-    });
-
-	std::cout << "Benchmark (total): " << total_benchmark.ms << " ms" << std::endl;
+//    return nullptr;
+//
+//    });
+//
+//	std::cout << "Benchmark (total): " << total_benchmark.ms << " ms" << std::endl;
 
     return 0;
 }
