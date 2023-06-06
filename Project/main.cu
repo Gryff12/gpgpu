@@ -6,9 +6,13 @@
 #include "src/Classification.hh"
 #include "io.h"
 
-int main() {
-    unsigned int width, height;
+#include "benchmark/benchmark.hh"
 
+int main() {
+
+	benchmark::time_output total_benchmark = benchmark::timeit<void*>([](){
+		
+	unsigned int width, height;
 
     //This path needs to be edited for each user
     //Must be RGB only :)
@@ -46,8 +50,16 @@ int main() {
             img_2[y * width + x] = image_2[x][y];
         }
     }
+    
+    benchmark::time_output benchmark = benchmark::timeit<bool*>([img_1, img_2, width, height]() {
+		return IsBackgroundPixel(img_1, img_2, width, height, 0.67);
+	});
 
-    bool *backgroundPixels = IsBackgroundPixel(img_1, img_2, width, height, 0.67);
+	bool* backgroundPixels = benchmark.result;
+
+	std::cout << "Benchmark (traitement): " << benchmark.ms << " ms" << std::endl;
+
+    //bool *backgroundPixels = IsBackgroundPixel(img_1, img_2, width, height, 0.67);
 
     saveImage("/afs/cri.epita.fr/user/m/ma/maxime.madrau/u/resr.ppm", backgroundPixels, width, height);
 
@@ -56,6 +68,12 @@ int main() {
     //delete [] image_1;
     //delete [] image_2;
     //delete [] backgroundPixels;
+    
+    return nullptr;
+    
+    });
+
+	std::cout << "Benchmark (total): " << total_benchmark.ms << " ms" << std::endl;
 
     return 0;
 }

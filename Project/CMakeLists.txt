@@ -16,8 +16,8 @@ include_directories("${COMMAND_LIGNE_2}")
 add_library(libpng STATIC IMPORTED src/ColorFeaturesExtraction.cpp src/ColorFeaturesExtraction.hh)
 set_target_properties(libpng PROPERTIES IMPORTED_LOCATION "${COMMAND_LIGNE_1}/libpng16.so.16.37.0")
 
-
-add_executable(Project main.cu io.cpp io.h src/ColorSimilarityMeasures.hh src/ColorSimilarityMeasures.cpp src/TextureSimilarityMeasures.cpp src/TextureSimilarityMeasures.hh src/TextureFeaturesExtraction.cpp src/TextureFeaturesExtraction.hh src/Classification.cpp src/Classification.hh)
+#add_executable(Project main.cu io.cpp io.h src/ColorSimilarityMeasures.hh src/ColorSimilarityMeasures.cpp src/TextureSimilarityMeasures.cpp src/TextureSimilarityMeasures.hh src/TextureFeaturesExtraction.cpp src/TextureFeaturesExtraction.hh src/Classification.cpp src/Classification.hh)
+add_executable(Project main.cu io.cpp io.h src/ColorSimilarityMeasures.hh src/ColorSimilarityMeasures.cpp src/TextureSimilarityMeasures.cpp src/TextureSimilarityMeasures.hh src/TextureFeaturesExtraction.cpp src/TextureFeaturesExtraction.hh src/Classification.cpp src/Classification.hh benchmark/benchmark.hh)
 
 target_link_libraries(Project libpng)
 
