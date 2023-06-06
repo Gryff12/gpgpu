@@ -33,6 +33,8 @@ int main() {
             for (int y = 0; y < height; ++y)
                 img_1[y * width + x] = image_1[x][y];
 
+        delete [] image_1;
+
         return img_1;
     });
 
@@ -56,6 +58,7 @@ int main() {
             for (int y = 0; y < height; ++y)
                 img_2[y * width + x] = image_2[x][y];
 
+        delete [] image_2;
         return img_2;
     });
 
@@ -65,7 +68,6 @@ int main() {
 
 
 
-    //benchmark::time_output total_benchmark = benchmark::timeit<void*>([](){
 
     
     benchmark::time_output benchmark = benchmark::timeit<bool*>([img_1, img_2, width, height]() {
@@ -74,23 +76,15 @@ int main() {
 
 	bool* backgroundPixels = benchmark.result;
 
-	std::cout << "Benchmark (traitement): " << benchmark.ms << " ms" << std::endl;
+	//std::cout << "Benchmark (traitement): " << benchmark.ms << " ms" << std::endl;
 
-    //bool *backgroundPixels = IsBackgroundPixel(img_1, img_2, width, height, 0.67);
 
     saveImage("/afs/cri.epita.fr/user/m/ma/maxime.madrau/u/resr.ppm", backgroundPixels, width, height);
 
-    //delete [] img_1;
-    //delete [] img_2;
-    //delete [] image_1;
-    //delete [] image_2;
-    //delete [] backgroundPixels;
-    
-//    return nullptr;
-//
-//    });
-//
-//	std::cout << "Benchmark (total): " << total_benchmark.ms << " ms" << std::endl;
+    delete [] img_1;
+    delete [] img_2;
+    delete [] backgroundPixels;
+
 
     return 0;
 }
