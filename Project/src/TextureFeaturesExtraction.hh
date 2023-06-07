@@ -8,8 +8,8 @@
 #include <vector>
 #include "../io.h"
 
-uint8_t getPixel(Color *image, int x, int y, int width, int height);
+uint8_t getPixel(ColorRG *image, int x, int y, int width, int height);
 
-uint8_t *TextureFeaturesExtraction(Color *image, int width, int height);
+uint8_t *TextureFeaturesExtraction(ColorRG *image, int width, int height);
 
 #endif //PROJECT_TEXTUREFEATURESEXTRACTION_HH

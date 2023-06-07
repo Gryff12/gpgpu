@@ -37,7 +37,7 @@ __global__ void IsBackgroundPixelKernel(char *d_retVal, size_t pitch_ret, double
     }
 }
 
-bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double threshold) {
+bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, double threshold) {
     cudaError_t err = cudaSuccess;
 
     // Allocate memory for the result on the CPU
@@ -46,52 +46,41 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
     // Allocate memory for the input images on the GPU
     size_t pitch1;
     size_t pitch2;
-    Color *d_img1, *d_img2;
+    ColorRG *d_img1, *d_img2;
 
-    auto s = width * sizeof(Color);
+    auto s = width * sizeof(ColorRG);
 
-    benchmark::time_output malloc_benchmark = benchmark::timeit<void*>([&]() {
-        err = cudaMallocPitch(&d_img1, &pitch1, s, height);
-        if (err != cudaSuccess) {
-            fprintf(stderr, "Failed to allocate memory for d_img1 (error code %s)!\n", cudaGetErrorString(err));
-            exit(EXIT_FAILURE);
-        }
-        err = cudaMallocPitch(&d_img2, &pitch2, s, height);
-        if (err != cudaSuccess) {
-            fprintf(stderr, "Failed to allocate memory for d_img2 (error code %s)!\n", cudaGetErrorString(err));
-            exit(EXIT_FAILURE);
-        }
+	err = cudaMallocPitch(&d_img1, &pitch1, s, height);
+	if (err != cudaSuccess) {
+		fprintf(stderr, "Failed to allocate memory for d_img1 (error code %s)!\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+	err = cudaMallocPitch(&d_img2, &pitch2, s, height);
+	if (err != cudaSuccess) {
+		fprintf(stderr, "Failed to allocate memory for d_img2 (error code %s)!\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
 
-        return nullptr;
-    });
 
-    std::cout << "Malloc time: " << malloc_benchmark.ms << " ms" << std::endl;
+	// Copy input images from CPU to GPU
+	err = cudaMemcpy2D(d_img1, pitch1, img1, width * sizeof(ColorRG), width * sizeof(ColorRG), height,
+					   cudaMemcpyHostToDevice);
+	if (err != cudaSuccess) {
+		fprintf(stderr, "Failed to copy img1 from host to device (error code %s)!\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
+	err = cudaMemcpy2D(d_img2, pitch2, img2, width * sizeof(ColorRG), width * sizeof(ColorRG), height,
+					   cudaMemcpyHostToDevice);
+	if (err != cudaSuccess) {
+		fprintf(stderr, "Failed to copy img2 from host to device (error code %s)!\n", cudaGetErrorString(err));
+		exit(EXIT_FAILURE);
+	}
 
-    benchmark::time_output memcpy_benchmark = benchmark::timeit<void*>([&]() {
-
-        // Copy input images from CPU to GPU
-        err = cudaMemcpy2D(d_img1, pitch1, img1, width * sizeof(Color), width * sizeof(Color), height,
-                           cudaMemcpyHostToDevice);
-        if (err != cudaSuccess) {
-            fprintf(stderr, "Failed to copy img1 from host to device (error code %s)!\n", cudaGetErrorString(err));
-            exit(EXIT_FAILURE);
-        }
-        err = cudaMemcpy2D(d_img2, pitch2, img2, width * sizeof(Color), width * sizeof(Color), height,
-                           cudaMemcpyHostToDevice);
-        if (err != cudaSuccess) {
-            fprintf(stderr, "Failed to copy img2 from host to device (error code %s)!\n", cudaGetErrorString(err));
-            exit(EXIT_FAILURE);
-        }
-
-        return nullptr;
-    });
-
-    //std::cout << "memcpy time: " << memcpy_benchmark.ms << " ms" << std::endl;
 
     // Allocate memory for the texture similarity measures on the GPU
     size_t textureSimilarityPitch;
     double *d_textureSimilarity;
-    err = cudaMallocPitch((void **) &d_textureSimilarity, &textureSimilarityPitch, width * sizeof(double), height);
+    err = cudaMallocPitch(&d_textureSimilarity, &textureSimilarityPitch, width * sizeof(double), height);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to allocate memory for d_textureSimilarity (error code %s)!\n",
                 cudaGetErrorString(err));
@@ -101,14 +90,11 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
     // Launch the TextureSimilarityKernel
     dim3 blockDim(32, 32);
     dim3 gridDim((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
-    benchmark::time_output texture_similarity_kernel_benchmark = benchmark::timeit<void*>([gridDim, blockDim, d_img1, pitch1, d_img2, pitch2, d_textureSimilarity,
-                                                                                    textureSimilarityPitch, width, height]() {
-        TextureSimilarityKernel<<<gridDim, blockDim>>>(d_img1, pitch1, d_img2, pitch2, d_textureSimilarity,
-                                                       textureSimilarityPitch, width, height);
-        cudaDeviceSynchronize();
 
-        return nullptr;
-    });
+	TextureSimilarityKernel<<<gridDim, blockDim>>>(d_img1, pitch1, d_img2, pitch2, d_textureSimilarity,
+												   textureSimilarityPitch, width, height);
+	cudaDeviceSynchronize();
+
 
     //std::cout << "texture_similarity_kernel_benchmark time: " << texture_similarity_kernel_benchmark.ms << " ms" << std::endl;
 
@@ -117,29 +103,23 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
     double *d_colorFeatures_r;
     size_t colorFeaturesPitch_g;
     double *d_colorFeatures_g;
-    err = cudaMallocPitch((void **) &d_colorFeatures_r, &colorFeaturesPitch_r, width * sizeof(double), height);
+    err = cudaMallocPitch(&d_colorFeatures_r, &colorFeaturesPitch_r, width * sizeof(double), height);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to allocate memory for d_colorFeatures_r (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-    err = cudaMallocPitch((void **) &d_colorFeatures_g, &colorFeaturesPitch_g, width * sizeof(double), height);
+    err = cudaMallocPitch(&d_colorFeatures_g, &colorFeaturesPitch_g, width * sizeof(double), height);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to allocate memory for d_colorFeatures_g (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
 
 
+	ColorSimilarityKernel<<<gridDim, blockDim>>>(d_img1, pitch1, d_img2, pitch2, d_colorFeatures_r,
+											 colorFeaturesPitch_r, d_colorFeatures_g, colorFeaturesPitch_g, width,
+											 height);
+	cudaDeviceSynchronize();
 
-    // Launch the ColorSimilarityKernel with benchmark
-    benchmark::time_output color_similarity_kernel_benchmark = benchmark::timeit<void*>([gridDim, blockDim, d_img1, pitch1, d_img2, pitch2, d_colorFeatures_r,
-                                                                                                  colorFeaturesPitch_r, d_colorFeatures_g, colorFeaturesPitch_g, width,
-                                                                                                  height](){
-        ColorSimilarityKernel<<<gridDim, blockDim>>>(d_img1, pitch1, d_img2, pitch2, d_colorFeatures_r,
-                                                 colorFeaturesPitch_r, d_colorFeatures_g, colorFeaturesPitch_g, width,
-                                                 height);
-        cudaDeviceSynchronize();
-        return nullptr;
-    });
 
     //std::cout << "color_similarity_kernel_benchmark time: " << color_similarity_kernel_benchmark.ms << " ms" << std::endl;
 
@@ -149,24 +129,18 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
     // Allocate memory for the result on the GPU
     char *d_retVal;
     size_t pitch;
-    err = cudaMallocPitch((void **) &d_retVal, &pitch, width * sizeof(char), height);
+    err = cudaMallocPitch(&d_retVal, &pitch, width * sizeof(char), height);
     if (err != cudaSuccess) {
         fprintf(stderr, "Failed to allocate memory for d_retVal (error code %s)!\n", cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
 
     // Launch the IsBackgroundPixelKernel with benchmark
-    benchmark::time_output is_background_pixel_kernel_benchmark = benchmark::timeit<void*>([gridDim, blockDim, d_retVal, pitch, d_textureSimilarity, textureSimilarityPitch,
-                                                                                                   d_colorFeatures_r, colorFeaturesPitch_r, d_colorFeatures_g,
-                                                                                                   colorFeaturesPitch_g,
-                                                                                                   threshold, width, height](){
-        IsBackgroundPixelKernel<<<gridDim, blockDim>>>(d_retVal, pitch, d_textureSimilarity, textureSimilarityPitch,
-                                                       d_colorFeatures_r, colorFeaturesPitch_r, d_colorFeatures_g,
-                                                       colorFeaturesPitch_g,
-                                                       threshold, width, height); // This line makes it crash
-        cudaDeviceSynchronize();
-        return nullptr;
-    });
+	IsBackgroundPixelKernel<<<gridDim, blockDim>>>(d_retVal, pitch, d_textureSimilarity, textureSimilarityPitch,
+												   d_colorFeatures_r, colorFeaturesPitch_r, d_colorFeatures_g,
+												   colorFeaturesPitch_g,
+												   threshold, width, height); // This line makes it crash
+	cudaDeviceSynchronize();
 
     //std::cout << "is_background_pixel_kernel_benchmark time: " << is_background_pixel_kernel_benchmark.ms << " ms" << std::endl;
 

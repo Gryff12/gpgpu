@@ -4,7 +4,7 @@
 
 #include "io.h"
 
-Color **loadImage(const std::string &filename, unsigned &width, unsigned &height) {
+ColorRG *loadImage(const std::string &filename, unsigned &width, unsigned &height) {
     FILE *file = fopen(filename.c_str(), "rb");
     if (!file) {
         std::cerr << "Erreur lors de l'ouverture du fichier : " << filename << std::endl;
@@ -55,15 +55,18 @@ Color **loadImage(const std::string &filename, unsigned &width, unsigned &height
         row_pointers[y] = new png_byte[png_get_rowbytes(png, info)];
     }
     png_read_image(png, row_pointers);
-    Color **image = new Color *[width];
-    for (int i = 0; i < width; i++)
-        image[i] = new Color[height];
+//    ColorRG **image = new ColorRG *[width];
+//    for (int i = 0; i < width; i++)
+//        image[i] = new ColorRG[height];
+
+	ColorRG *image = new ColorRG [width * height];
+
+	size_t c = 0;
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             uint8_t r = row_pointers[y][x * 3];
             uint8_t g = row_pointers[y][x * 3 + 1];
-            uint8_t b = row_pointers[y][x * 3 + 2];
-            image[x][y] = {r, g, b};
+            image[c++] = {r, g};
         }
     }
     png_destroy_read_struct(&png, &info, NULL);
@@ -106,7 +109,7 @@ void saveImage(const char *filename, bool *pixels, int width, int height) {
 }
 
 
-void saveImage(const char *filename, Color *pixels, int width, int height){
+void saveImage(const char *filename, ColorRG *pixels, int width, int height){
     FILE *f = fopen(filename, "w");
     (void) fprintf(f, "P6\n%d %d\n255\n", width, height);
     for (int y = 0; y < height; y++) {
@@ -114,7 +117,7 @@ void saveImage(const char *filename, Color *pixels, int width, int height){
             static unsigned char color[3];
             color[0] = (unsigned char) pixels[y * width + x].r;
             color[1] = (unsigned char) pixels[y * width + x].g;
-            color[2] = (unsigned char) pixels[y * width + x].b;
+            color[2] = (unsigned char) pixels[y * width + x].g;
             (void) fwrite(color, 1, 3, f);
         }
     }

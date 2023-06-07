@@ -4,14 +4,14 @@
 
 #include "TextureFeaturesExtraction.hh"
 
-uint8_t getPixel(Color *image, int x, int y, int width, int height) {
+uint8_t getPixel(ColorRG *image, int x, int y, int width, int height) {
     if (x < 0 || x >= width || y < 0 || y >= height) {
         return 0;
     }
     return image[y * width + x].r / 2 + image[y * width + x].g / 2;
 }
 
-uint8_t *TextureFeaturesExtraction(Color *image, int width, int height) {
+uint8_t *TextureFeaturesExtraction(ColorRG *image, int width, int height) {
     // Init 2d array of size width, height
     uint8_t *lbpCode = new uint8_t [width * height];
 
