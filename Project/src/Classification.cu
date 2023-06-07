@@ -86,7 +86,7 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
         return nullptr;
     });
 
-    std::cout << "memcpy time: " << memcpy_benchmark.ms << " ms" << std::endl;
+    //std::cout << "memcpy time: " << memcpy_benchmark.ms << " ms" << std::endl;
 
     // Allocate memory for the texture similarity measures on the GPU
     size_t textureSimilarityPitch;
@@ -110,7 +110,7 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
         return nullptr;
     });
 
-    std::cout << "texture_similarity_kernel_benchmark time: " << texture_similarity_kernel_benchmark.ms << " ms" << std::endl;
+    //std::cout << "texture_similarity_kernel_benchmark time: " << texture_similarity_kernel_benchmark.ms << " ms" << std::endl;
 
     // Allocate memory for the color similarity measures on the GPU
     size_t colorFeaturesPitch_r;
@@ -141,7 +141,7 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
         return nullptr;
     });
 
-    std::cout << "color_similarity_kernel_benchmark time: " << color_similarity_kernel_benchmark.ms << " ms" << std::endl;
+    //std::cout << "color_similarity_kernel_benchmark time: " << color_similarity_kernel_benchmark.ms << " ms" << std::endl;
 
 
     
@@ -168,7 +168,7 @@ bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double 
         return nullptr;
     });
 
-    std::cout << "is_background_pixel_kernel_benchmark time: " << is_background_pixel_kernel_benchmark.ms << " ms" << std::endl;
+    //std::cout << "is_background_pixel_kernel_benchmark time: " << is_background_pixel_kernel_benchmark.ms << " ms" << std::endl;
 
 
     // Copy the result from GPU to CPU

@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <iostream>
+#include <glob.h>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <thrust/device_vector.h>
 #include "src/ColorSimilarityMeasures.hh"
 #include "src/TextureSimilarityMeasures.hh"
@@ -8,83 +12,94 @@
 
 #include "benchmark/benchmark.h"
 
+int processImages(const std::string& folderPath, const std::string& outputFolder) {
+    std::string searchPattern = folderPath + "/*.png";
+    glob_t globResult;
+    if (glob(searchPattern.c_str(), GLOB_TILDE, nullptr, &globResult) != 0) {
+        std::cout << "Erreur lors de la recherche des fichiers d'image dans le dossier : " << folderPath << std::endl;
+        return 1;
+    }
+
+    if (globResult.gl_pathc == 0) {
+        std::cout << "Aucun fichier d'image trouvé dans le dossier : " << folderPath << std::endl;
+        globfree(&globResult);
+        return 1;
+    }
+
+    unsigned int width = 0;
+    unsigned int height = 0;
+    Color* prevImg = nullptr;
+
+    for (size_t i = 0; i < globResult.gl_pathc; ++i) {
+        std::string filename = globResult.gl_pathv[i];
+        std::cout << "Traitement de l'image : " << filename << std::endl;
+
+        benchmark::time_output loadImageBenchmark = benchmark::timeit<Color*>([&width, &height, filename]() {
+            Color** image = loadImage(filename, width, height);
+            if (!image) {
+                return static_cast<Color*>(nullptr);
+            }
+
+            Color* img = new Color[width * height];
+            for (unsigned int x = 0; x < width; x++) {
+                for (unsigned int y = 0; y < height; y++) {
+                    img[y * width + x] = image[x][y];
+                }
+            }
+
+            //deleteImage(image, width);
+            return img;
+        });
+
+        Color* img = loadImageBenchmark.result;
+        if (!img) {
+            std::cout << "Échec lors du chargement de l'image : " << filename << std::endl;
+            continue;
+        }
+
+        if (prevImg) {
+            benchmark::time_output benchmark = benchmark::timeit<bool*>([prevImg, img, width, height]() {
+                return IsBackgroundPixel(prevImg, img, width, height, 0.67);
+            });
+
+            bool* backgroundPixels = benchmark.result;
+            //std::cout << "Temps de traitement : " << benchmark.ms << " ms" << std::endl;
+
+            std::string baseName = filename.substr(filename.find_last_of("/") + 1);
+            std::string outputFilename = outputFolder + "/" + baseName + ".ppm";
+            std::cout << "Enregistrement de l'image : " << outputFilename << std::endl;
+            saveImage(outputFilename.c_str(), backgroundPixels, width, height);
+
+            delete[] backgroundPixels;
+        }
+
+        if (prevImg) {
+            delete[] prevImg;
+        }
+
+        prevImg = new Color[width * height];
+        std::copy(img, img + width * height, prevImg);
+
+        delete[] img;
+    }
+
+    if (prevImg) {
+        delete[] prevImg;
+    }
+
+    globfree(&globResult);
+    return 0;
+}
+
 int main() {
+    // Change this to your own path to the dataset folder and the output folder
+    std::string folderPath = "/home/nicolas.muller/dataset/video_frames";
+    std::string outputFolder = "/home/nicolas.muller/result";
 
-    unsigned int width, height;
-
-    benchmark::time_output load_image_1_benchmark = benchmark::timeit<Color*>([&width, &height](){
-        std::string filename_1 = "/home/maxime.madrau/dataset/video_frames/0061.png";
-        Color **image_1 = loadImage(filename_1, width, height);
-        if (image_1) {
-            // L'image a été chargée avec succès
-            // Faites ce que vous voulez avec l'image ici
-
-            std::cout << "Largeur : " << width << std::endl;
-            // 640
-            std::cout << "Hauteur : " << height << std::endl;
-            // 360
-            std::cout << "Nombre de pixels : " << width * height << std::endl;
-        } else {
-            std::cout << "Fail" << std::endl;
-        }
-
-        Color *img_1 = new Color[width * height];
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; ++y)
-                img_1[y * width + x] = image_1[x][y];
-
-        delete [] image_1;
-
-        return img_1;
+    // Benchmark the whole process
+    benchmark::time_output globalTime = benchmark::timeit<int>([folderPath, outputFolder]() {
+        return processImages(folderPath, outputFolder);
     });
-
-    Color *img_1 = load_image_1_benchmark.result;
-
-    std::cout << "load_image_1_benchmark: " << load_image_1_benchmark.ms << " ms" << std::endl;
-
-    benchmark::time_output load_image_2_benchmark = benchmark::timeit<Color*>([&width, &height](){
-        std::string filename_2 = "/home/maxime.madrau/dataset/video_frames/0062.png";
-        Color **image_2 = loadImage(filename_2, width, height);
-        if (image_2) {
-            std::cout << "Largeur : " << width << std::endl;
-            std::cout << "Hauteur : " << height << std::endl;
-            std::cout << "Nombre de pixels : " << width * height << std::endl;
-        } else {
-            std::cout << "Fail" << std::endl;
-        }
-
-        Color *img_2 = new Color[width * height];
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; ++y)
-                img_2[y * width + x] = image_2[x][y];
-
-        delete [] image_2;
-        return img_2;
-    });
-
-    Color *img_2 = load_image_2_benchmark.result;
-
-    std::cout << "load_image_2_benchmark: " << load_image_2_benchmark.ms << " ms" << std::endl;
-
-
-
-
-    
-    benchmark::time_output benchmark = benchmark::timeit<bool*>([img_1, img_2, width, height]() {
-		return IsBackgroundPixel(img_1, img_2, width, height, 0.67);
-	});
-
-	bool* backgroundPixels = benchmark.result;
-
-	//std::cout << "Benchmark (traitement): " << benchmark.ms << " ms" << std::endl;
-
-
-    saveImage("/afs/cri.epita.fr/user/m/ma/maxime.madrau/u/resr.ppm", backgroundPixels, width, height);
-
-    delete [] img_1;
-    delete [] img_2;
-    delete [] backgroundPixels;
-
-
+    std::cout << "Temps total : " << globalTime.ms << " ms" << std::endl;
     return 0;
 }
