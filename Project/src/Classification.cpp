@@ -24,7 +24,7 @@ void sortThreeValues(double& a, double& b, double& c) {
     }
 }
 
-bool *IsBackgroundPixel(Color *img1, Color *img2, int width, int height, double threshold) {
+bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, double threshold) {
 	bool *retVal = new bool [width * height];
 
     double *textureSimilarity = TextureSimilarityMeasures(img1, img2, width, height);

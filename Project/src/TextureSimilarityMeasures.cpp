@@ -10,7 +10,7 @@ unsigned int ToUnsignedInt(unsigned char value) {
 }
 
 // Fonction pour calculer la similarité basée sur la distance de Hamming entre deux images
-double *TextureSimilarityMeasures(Color *img1, Color *img2, int width, int height) {
+double *TextureSimilarityMeasures(ColorRG *img1, ColorRG *img2, int width, int height) {
     double *similarities = new double [width * height];
 
     auto lbp1 = TextureFeaturesExtraction(img1, width, height);

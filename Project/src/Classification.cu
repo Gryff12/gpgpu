@@ -37,32 +37,14 @@ __global__ void IsBackgroundPixelKernel(char *d_retVal, size_t pitch_ret, double
     }
 }
 
-bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, double threshold) {
+bool *IsBackgroundPixelGPU(ColorRG *img1, ColorRG *img2, int width, int height, double threshold, size_t pitch1, size_t pitch2, ColorRG *d_img1, ColorRG *d_img2, double *d_textureSimilarity, size_t textureSimilarityPitch, double *d_colorFeatures_r, size_t colorFeaturesPitch_r, double *d_colorFeatures_g, size_t colorFeaturesPitch_g, char *d_retVal, size_t pitch) {
     cudaError_t err = cudaSuccess;
 
     // Allocate memory for the result on the CPU
     bool *retVal = new bool[width * height];
 
-    // Allocate memory for the input images on the GPU
-    size_t pitch1;
-    size_t pitch2;
-    ColorRG *d_img1, *d_img2;
-
-    auto s = width * sizeof(ColorRG);
-
-	err = cudaMallocPitch(&d_img1, &pitch1, s, height);
-	if (err != cudaSuccess) {
-		fprintf(stderr, "Failed to allocate memory for d_img1 (error code %s)!\n", cudaGetErrorString(err));
-		exit(EXIT_FAILURE);
-	}
-	err = cudaMallocPitch(&d_img2, &pitch2, s, height);
-	if (err != cudaSuccess) {
-		fprintf(stderr, "Failed to allocate memory for d_img2 (error code %s)!\n", cudaGetErrorString(err));
-		exit(EXIT_FAILURE);
-	}
-
-
 	// Copy input images from CPU to GPU
+
 	err = cudaMemcpy2D(d_img1, pitch1, img1, width * sizeof(ColorRG), width * sizeof(ColorRG), height,
 					   cudaMemcpyHostToDevice);
 	if (err != cudaSuccess) {
@@ -76,17 +58,6 @@ bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, dou
 		exit(EXIT_FAILURE);
 	}
 
-
-    // Allocate memory for the texture similarity measures on the GPU
-    size_t textureSimilarityPitch;
-    double *d_textureSimilarity;
-    err = cudaMallocPitch(&d_textureSimilarity, &textureSimilarityPitch, width * sizeof(double), height);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate memory for d_textureSimilarity (error code %s)!\n",
-                cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
     // Launch the TextureSimilarityKernel
     dim3 blockDim(32, 32);
     dim3 gridDim((width + blockDim.x - 1) / blockDim.x, (height + blockDim.y - 1) / blockDim.y);
@@ -98,22 +69,6 @@ bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, dou
 
     //std::cout << "texture_similarity_kernel_benchmark time: " << texture_similarity_kernel_benchmark.ms << " ms" << std::endl;
 
-    // Allocate memory for the color similarity measures on the GPU
-    size_t colorFeaturesPitch_r;
-    double *d_colorFeatures_r;
-    size_t colorFeaturesPitch_g;
-    double *d_colorFeatures_g;
-    err = cudaMallocPitch(&d_colorFeatures_r, &colorFeaturesPitch_r, width * sizeof(double), height);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate memory for d_colorFeatures_r (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-    err = cudaMallocPitch(&d_colorFeatures_g, &colorFeaturesPitch_g, width * sizeof(double), height);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate memory for d_colorFeatures_g (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-
 
 	ColorSimilarityKernel<<<gridDim, blockDim>>>(d_img1, pitch1, d_img2, pitch2, d_colorFeatures_r,
 											 colorFeaturesPitch_r, d_colorFeatures_g, colorFeaturesPitch_g, width,
@@ -123,17 +78,6 @@ bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, dou
 
     //std::cout << "color_similarity_kernel_benchmark time: " << color_similarity_kernel_benchmark.ms << " ms" << std::endl;
 
-
-    
-
-    // Allocate memory for the result on the GPU
-    char *d_retVal;
-    size_t pitch;
-    err = cudaMallocPitch(&d_retVal, &pitch, width * sizeof(char), height);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to allocate memory for d_retVal (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
 
     // Launch the IsBackgroundPixelKernel with benchmark
 	IsBackgroundPixelKernel<<<gridDim, blockDim>>>(d_retVal, pitch, d_textureSimilarity, textureSimilarityPitch,
@@ -155,38 +99,38 @@ bool *IsBackgroundPixel(ColorRG *img1, ColorRG *img2, int width, int height, dou
     cudaDeviceSynchronize();
 
     // Free GPU memory
-    err = cudaFree(d_img1);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device memory for d_img1 (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-    err = cudaFree(d_img2);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device memory for d_img2 (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-    err = cudaFree(d_textureSimilarity);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device memory for d_textureSimilarity (error code %s)!\n",
-                cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-    err = cudaFree(d_colorFeatures_r);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device memory for d_colorFeatures_r (error code %s)!\n",
-                cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-    err = cudaFree(d_colorFeatures_g);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device memory for d_colorFeatures_g (error code %s)!\n",
-                cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-    err = cudaFree(d_retVal);
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to free device memory for d_retVal (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
+//    err = cudaFree(d_img1);
+//    if (err != cudaSuccess) {
+//        fprintf(stderr, "Failed to free device memory for d_img1 (error code %s)!\n", cudaGetErrorString(err));
+//        exit(EXIT_FAILURE);
+//    }
+//    err = cudaFree(d_img2);
+//    if (err != cudaSuccess) {
+//        fprintf(stderr, "Failed to free device memory for d_img2 (error code %s)!\n", cudaGetErrorString(err));
+//        exit(EXIT_FAILURE);
+//    }
+//    err = cudaFree(d_textureSimilarity);
+//    if (err != cudaSuccess) {
+//        fprintf(stderr, "Failed to free device memory for d_textureSimilarity (error code %s)!\n",
+//                cudaGetErrorString(err));
+//        exit(EXIT_FAILURE);
+//    }
+//    err = cudaFree(d_colorFeatures_r);
+//    if (err != cudaSuccess) {
+//        fprintf(stderr, "Failed to free device memory for d_colorFeatures_r (error code %s)!\n",
+//                cudaGetErrorString(err));
+//        exit(EXIT_FAILURE);
+//    }
+//    err = cudaFree(d_colorFeatures_g);
+//    if (err != cudaSuccess) {
+//        fprintf(stderr, "Failed to free device memory for d_colorFeatures_g (error code %s)!\n",
+//                cudaGetErrorString(err));
+//        exit(EXIT_FAILURE);
+//    }
+//    err = cudaFree(d_retVal);
+//    if (err != cudaSuccess) {
+//        fprintf(stderr, "Failed to free device memory for d_retVal (error code %s)!\n", cudaGetErrorString(err));
+//        exit(EXIT_FAILURE);
+//    }
     return retVal;
 }

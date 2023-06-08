@@ -3,7 +3,7 @@
 //
 #include "ColorSimilarityMeasures.hh"
 
-std::pair<double, double> *ColorSimilarityMeasures(Color *img1, Color *img2, int width, int height) {
+std::pair<double, double> *ColorSimilarityMeasures(ColorRG *img1, ColorRG *img2, int width, int height) {
     std::pair<double, double> *retVal = new std::pair<double, double> [width * height];
 
 
