@@ -133,9 +133,46 @@ int processImages(const std::string& folderPath, const std::string& outputFolder
         std::copy(img, img + width * height, prevImg);
 
         delete[] img;
-
-		// TODO: Free memory
     }
+    
+    // TODO: Free memory
+#ifdef GPU
+	benchmark::time_output benchmark = benchmark::timeit<void*>([&]() {
+		auto err = cudaFree(d_img2);
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Failed to free device memory for d_img2 (error code %s)!\n", cudaGetErrorString(err));
+			exit(EXIT_FAILURE);
+		}
+		err = cudaFree(d_textureSimilarity);
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Failed to free device memory for d_textureSimilarity (error code %s)!\n",
+					cudaGetErrorString(err));
+			exit(EXIT_FAILURE);
+		}
+		err = cudaFree(d_colorFeatures_r);
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Failed to free device memory for d_colorFeatures_r (error code %s)!\n",
+					cudaGetErrorString(err));
+			exit(EXIT_FAILURE);
+		}
+		err = cudaFree(d_colorFeatures_g);
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Failed to free device memory for d_colorFeatures_g (error code %s)!\n",
+					cudaGetErrorString(err));
+			exit(EXIT_FAILURE);
+		}
+		err = cudaFree(d_retVal);
+		if (err != cudaSuccess) {
+			fprintf(stderr, "Failed to free device memory for d_retVal (error code %s)!\n", cudaGetErrorString(err));
+			exit(EXIT_FAILURE);
+		}
+		
+		return nullptr;
+	});
+	
+	*benchmark_time += benchmark.ms;
+
+#endif
 
     if (prevImg) {
         delete[] prevImg;
